@@ -867,7 +867,6 @@ ScfbScreenInit(SCREEN_INIT_ARGS_DECL)
 	}
 
 	xf86SetBlackWhitePixels(pScreen);
-	miInitializeBackingStore(pScreen);
 	xf86SetBackingStore(pScreen);
 
 	/* Software cursor. */
