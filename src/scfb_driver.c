@@ -258,14 +258,14 @@ ScfbSetup(pointer module, pointer opts, int *errmaj, int *errmin)
 
 	/* Check that we're being loaded on a OpenBSD or NetBSD system. */
 	LoaderGetOS(&osname, NULL, NULL, NULL);
-	if (!osname || (strcmp(osname, "freebsd") != 0 && strcmp(osname, "openbsd") != 0 &&
+	/*if (!osname || (strcmp(osname, "freebsd") != 0 && strcmp(osname, "openbsd") != 0 &&
 	                strcmp(osname, "netbsd") != 0)) {
 		if (errmaj)
 			*errmaj = LDR_BADOS;
 		if (errmin)
 			*errmin = 0;
 		return NULL;
-	}
+	}*/
 	if (!setupDone) {
 		setupDone = TRUE;
 		xf86AddDriver(&SCFB, module, HaveDriverFuncs);
