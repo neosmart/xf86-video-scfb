@@ -92,6 +92,11 @@
 # define TRACE(str)
 #endif
 
+#ifndef XF86_HAS_SCRN_CONV
+#define xf86ScreenToScrn(s) xf86Screens[(s)->myNum]
+#define xf86ScrnToScreen(s) screenInfo.screens[(s)->scrnIndex]
+#endif
+
 #ifndef XF86_SCRN_INTERFACE
 
 #define SCRN_ARG_TYPE int
