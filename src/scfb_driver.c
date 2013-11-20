@@ -417,6 +417,40 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "FBIO_ADPINFO returns va_type %d, va_name %s, va_unit %d, va_mode %d, va_initial_mode %d, va_initial_bios_mode %d \n", 
 		adp.va_type, adp.va_name, adp.va_unit, adp.va_mode, adp.va_initial_mode, adp.va_initial_bios_mode );
 #endif
+
+	//Find the desired video mode. Hard-coded to 1280x800x16 for now.
+	//Same as the following vidcontrol command:
+	//vidcontrol -i mode | grep '1280x720x16' | egrep -o '[0-9]{3} '
+	struct video_info vinfo = {0};
+	vinfo.vi_width = 1280;
+	vinfo.vi_height = 800;
+	vinfo.vi_depth = 16;
+
+	if (ioctl(fPtr->fd, FBIO_FINDMODE, &vinfo) == -1) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+		   "ioctl FBIO_FINDMODE: %s\n",
+		   strerror(errno));
+		return FALSE;
+	}
+
+#if DEBUG
+	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "FBIO_FINDMODE queried for %dx%dx%d, result mode: 0x%x\n", 
+		vinfo.vi_width, vinfo.vi_height, vinfo.vi_depth, vinfo.vi_mode);
+#endif
+
+	if (vinfo.vi_mode == 0) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+			   "Selected video mode is not supported!\n");
+		return FALSE;
+	}
+
+	if (ioctl(fPtr->fd, FBIO_SETMODE, &vinfo.vi_mode) == -1) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+			   "ioctl FBIO_SETMODE: %s\n",
+			   strerror(errno));
+		return FALSE;
+	}
+
 	if (ioctl(fPtr->fd, FBIOGTYPE, &fb) == -1) {
 		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 			   "ioctl FBIOGTYPE: %s\n",
