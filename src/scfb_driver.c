@@ -1191,4 +1191,3 @@ ScfbDriverFunc(ScrnInfoPtr pScrn, xorgDriverFuncOp op,
 		return FALSE;
 	}
 }
-
