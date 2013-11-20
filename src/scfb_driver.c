@@ -392,7 +392,7 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 #endif
 
 	dev = xf86FindOptionValue(fPtr->pEnt->device->options, "device");
-	fPtr->fd = xf86Info.consoleFd;
+	fPtr->fd = xf86Info.consoleFd; //points to /dev/ttyv6 or similar
 	if (fPtr->fd == -1) {
 		return FALSE;
 	}
