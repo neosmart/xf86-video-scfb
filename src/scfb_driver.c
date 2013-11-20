@@ -397,6 +397,17 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 		return FALSE;
 	}
 
+#if DEBUG
+	video_adapter_info_t adp = {0};
+	if (ioctl(fPtr->fd, FBIO_ADPINFO, &adp) == -1) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+			   "ioctl FBIO_ADPINFO: %s\n",
+			   strerror(errno));
+		return FALSE;
+	}
+	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "FBIO_ADPINFO returns va_type %d, va_name %s, va_unit %d, va_mode %d, va_initial_mode %d, va_initial_bios_mode %d \n", 
+		adp.va_type, adp.va_name, adp.va_unit, adp.va_mode, adp.va_initial_mode, adp.va_initial_bios_mode );
+#endif
 	if (ioctl(fPtr->fd, FBIOGTYPE, &fb) == -1) {
 		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 			   "ioctl FBIOGTYPE: %s\n",
