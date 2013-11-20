@@ -274,7 +274,7 @@ ScfbAvailableOptions(int chipid, int busid)
 static void
 ScfbIdentify(int flags)
 {
-	xf86PrintChipsets(SCFB_NAME, "driver for wsdisplay framebuffer",
+	xf86PrintChipsets(SCFB_NAME, "driver for syscons framebuffer",
 			  ScfbChipsets);
 }
 
