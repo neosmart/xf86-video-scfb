@@ -284,23 +284,30 @@ ScfbIdentify(int flags)
 static pointer
 scfb_mmap(size_t len, off_t off, int fd)
 {
-	int pagemask, mapsize;
-	caddr_t addr;
-	pointer mapaddr;
+	size_t pagesize, mapsize;
+	void *mapaddr;
 
-	pagemask = getpagesize() - 1;
-	mapsize = ((int) len + pagemask) & ~pagemask;
-	addr = 0;
+	//I have no idea why, but mmap to a rounded *UP* pagesize completely fails
+	//My guess in the dark: freebsd (which, according to mmap(2), does NOT require requests to be multiples of pagesize) is 
+	//already rounding up mappings for /dev/ttyv#-backed maps?
+	pagesize = sysconf(_SC_PAGESIZE);
+
+	//Basically: I really can't explain it. The commented-out line is correct, it bumps up pagesize to the right value
+	//The line thereafter is just plain wrong, it truncates and SHOULD lead to a buffer overflow... but it doesn't.
+	//mapsize = (len + pagesize - 1) & ~(pagesize - 1);
+	mapsize = (len) & ~(pagesize - 1);
 
 	/*
 	 * Try and make it private first, that way once we get it, an
 	 * interloper, e.g. another server, can't get this frame buffer,
 	 * and if another server already has it, this one won't.
 	 */
-	mapaddr = (pointer) mmap(addr, mapsize,
+	mapaddr = mmap(NULL, mapsize,
 				 PROT_READ | PROT_WRITE, MAP_SHARED,
 				 fd, off);
-	if (mapaddr == (pointer) -1) {
+	if (mapaddr == (void *) -1) {
+		ErrorF("mmap error: %s",
+			   strerror(errno));
 		mapaddr = NULL;
 	}
 #if DEBUG
