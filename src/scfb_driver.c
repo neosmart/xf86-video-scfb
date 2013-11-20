@@ -48,6 +48,8 @@
 #include <sys/time.h>
 #include <sys/consio.h>
 #include <sys/fbio.h>
+#include <sys/stat.h>
+#include <time.h>
 
 /* All drivers need this. */
 #include "xf86.h"
@@ -418,11 +420,11 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 	fPtr->info.vi_depth = fb.fb_depth;
 	fPtr->info.vi_width = fb.fb_width;
 	fPtr->info.vi_height = fb.fb_height;
-	fPtr->info.vi_pixel_size = fb.fb_depth/8;
+	fPtr->info.vi_pixel_size = fb.fb_size / fb.fb_width / fb.fb_height;
 
 	xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-	    "Using: depth (%d),\twidth (%d),\t height (%d)\n",
-	    fPtr->info.vi_depth,fPtr->info.vi_width, fPtr->info.vi_height);
+	    "Device %s of type %d Using: depth (%d),\twidth (%d),\tpxsize (%d),\theight (%d)\n",
+	    dev, fb.fb_type, fPtr->info.vi_depth,fPtr->info.vi_width, fPtr->info.vi_pixel_size, fPtr->info.vi_height);
 
 	fPtr->linebytes = fPtr->info.vi_width * fPtr->info.vi_pixel_size;
 
@@ -662,34 +664,16 @@ ScfbScreenInit(SCREEN_INIT_ARGS_DECL)
 	case 1:
 	case 4:
 	case 8:
-		len = fPtr->linebytes*fPtr->info.vi_height;
-		break;
 	case 16:
-		if (fPtr->linebytes == fPtr->info.vi_width) {
-			len = fPtr->info.vi_width*fPtr->info.vi_height*sizeof(short);
-		} else {
-			len = fPtr->linebytes*fPtr->info.vi_height;
-		}
-		break;
 	case 24:
-		if (fPtr->linebytes == fPtr->info.vi_width) {
-			len = fPtr->info.vi_width*fPtr->info.vi_height*3;
-		} else {
-			len = fPtr->linebytes*fPtr->info.vi_height;
-		}
-		break;
 	case 32:
-		if (fPtr->linebytes == fPtr->info.vi_width) {
-			len = fPtr->info.vi_width*fPtr->info.vi_height*sizeof(int);
-		} else {
-			len = fPtr->linebytes*fPtr->info.vi_height;
-		}
 		break;
 	default:
 		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 			   "unsupported depth %d\n", fPtr->info.vi_depth);
 		return FALSE;
 	}
+	len = ((size_t) fPtr->info.vi_height) * fPtr->linebytes;
 	/* TODO: Switch to graphics mode - required before mmap. */
 	fPtr->fbmem = scfb_mmap(len, 0, fPtr->fd);
 
