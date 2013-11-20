@@ -319,13 +319,15 @@ ScfbProbe(DriverPtr drv, int flags)
 	TRACE("probe start");
 
 	/* For now, just bail out for PROBE_DETECT. */
-	if (flags & PROBE_DETECT)
+	if (flags & PROBE_DETECT) {
+		TRACE("PROBE_DETECT support disabled.");
 		return FALSE;
+	}
 
-	if ((numDevSections = xf86MatchDevice(SCFB_DRIVER_NAME,
-					      &devSections)) <= 0)
+	if ((numDevSections = xf86MatchDevice(SCFB_DRIVER_NAME, &devSections)) <= 0) {
+		ErrorF("xf86MatchDevice failed.");
 		return FALSE;
-
+	}
 
 	for (i = 0; i < numDevSections; i++) {
 		ScrnInfoPtr pScrn = NULL;
