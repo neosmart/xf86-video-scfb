@@ -526,7 +526,7 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 	pScrn->progClock = TRUE;
 	pScrn->rgbBits   = 8;
 	pScrn->chipset   = "scfb";
-	pScrn->videoRam  = fPtr->linebytes * (fPtr->info.vi_height / 1024); //videoram is calculated in kb
+	pScrn->videoRam  = ((int64_t)fPtr->linebytes * fPtr->info.vi_height) / 1024; //videoram is calculated in kb
 
 	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "Vidmem: %dk\n",
 		   pScrn->videoRam);
