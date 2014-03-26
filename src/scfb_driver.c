@@ -422,9 +422,19 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 	//Same as the following vidcontrol command:
 	//vidcontrol -i mode | grep '1280x720x16' | egrep -o '[0-9]{3} '
 	struct video_info vinfo = {0};
-	vinfo.vi_width = 1280;
+	/*vinfo.vi_width = 1280;
 	vinfo.vi_height = 800;
-	vinfo.vi_depth = 16;
+	vinfo.vi_depth = 32;*/
+
+	char *resolution = getenv("RESOLUTION");
+
+	if (resolution == NULL) {
+		resolution = "1024x768x32";
+	}
+
+	printf("Will search for resolution %s\r\n", resolution);
+
+	sscanf(resolution, "%dx%dx%d", &vinfo.vi_width, &vinfo.vi_height, &vinfo.vi_depth);
 
 	if (ioctl(fPtr->fd, FBIO_FINDMODE, &vinfo) == -1) {
 		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
