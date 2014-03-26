@@ -438,7 +438,7 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 
 	if (ioctl(fPtr->fd, FBIO_FINDMODE, &vinfo) == -1) {
 		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-		   "ioctl FBIO_FINDMODE: %s\n",
+		   "Selected video mode is not supported!\nioctl FBIO_FINDMODE: %s\n",
 		   strerror(errno));
 		return FALSE;
 	}
