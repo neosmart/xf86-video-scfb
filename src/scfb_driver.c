@@ -477,7 +477,7 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 	    "Device %s of type %d Using: depth (%d),\twidth (%d),\tpxsize (%d),\theight (%d)\n",
 	    dev, fb.fb_type, fPtr->info.vi_depth,fPtr->info.vi_width, fPtr->info.vi_pixel_size, fPtr->info.vi_height);
 
-	fPtr->linebytes = fPtr->info.vi_width * fPtr->info.vi_pixel_size;
+	fPtr->linebytes = fb.fb_size / fb.fb_height; //fPtr->info.vi_width * fPtr->info.vi_pixel_size;
 
 	/* Handle depth */
 	default_depth = fPtr->info.vi_depth <= 24 ? fPtr->info.vi_depth : 24;
