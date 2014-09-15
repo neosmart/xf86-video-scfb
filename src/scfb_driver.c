@@ -490,8 +490,9 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 	fPtr->info.vi_pixel_size = ((fb.fb_depth + 8 - 1) - (fb.fb_depth - 1) % 8) / 8; //in bytes
 
 	xf86DrvMsg(pScrn->scrnIndex, X_INFO,
-	    "Device %s of type %d Using: depth (%d),\twidth (%d),\tpxsize (%d),\theight (%d)\n",
-	    dev, fb.fb_type, fPtr->info.vi_depth,fPtr->info.vi_width, fPtr->info.vi_pixel_size, fPtr->info.vi_height);
+	    "Device %s of type %d Using: depth (%d), width (%d), height (%d) at pxsize (%d) with total size (%d)\n",
+	    dev, fb.fb_type, fPtr->info.vi_depth,fPtr->info.vi_width, fPtr->info.vi_height, fPtr->info.vi_pixel_size, 
+	    fb.fb_size);
 
 	fPtr->linebytes = fb.fb_size / fb.fb_height; //fPtr->info.vi_width * fPtr->info.vi_pixel_size;
 
