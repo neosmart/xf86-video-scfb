@@ -287,15 +287,19 @@ scfb_mmap(size_t len, off_t off, int fd)
 	size_t pagesize, mapsize;
 	void *mapaddr;
 
-	//I have no idea why, but mmap to a rounded *UP* pagesize completely fails
-	//My guess in the dark: freebsd (which, according to mmap(2), does NOT require requests to be multiples of pagesize) is 
-	//already rounding up mappings for /dev/ttyv#-backed maps?
 	pagesize = sysconf(_SC_PAGESIZE);
+	video_adapter_info_t adp = {0};
+	if (ioctl(fd, FBIO_ADPINFO, &adp) == -1) {
+		ErrorF(
+			   "ioctl FBIO_ADPINFO: %s\n",
+			   strerror(errno));
+		return FALSE;
+	}
 
-	//Basically: I really can't explain it. The commented-out line is correct, it bumps up pagesize to the right value
-	//The line thereafter is just plain wrong, it truncates and SHOULD lead to a buffer overflow... but it doesn't.
-	//mapsize = (len + pagesize - 1) & ~(pagesize - 1);
-	mapsize = (len) & ~(pagesize - 1);
+	ErrorF("va_window: 0x%x, va_window_size: %d\n", adp.va_window, adp.va_window_size);
+	ErrorF("Requesting mmap of %d (0x%x) bytes\n", len, len);
+	mapsize = (len + pagesize - 1) - (len - 1) % pagesize;
+	ErrorF("Requested size: %d (0x%x) w/ pagesize of %d\n", mapsize, mapsize, pagesize);
 
 	/*
 	 * Try and make it private first, that way once we get it, an
@@ -303,7 +307,7 @@ scfb_mmap(size_t len, off_t off, int fd)
 	 * and if another server already has it, this one won't.
 	 */
 	mapaddr = mmap(NULL, mapsize,
-				 PROT_READ | PROT_WRITE, MAP_SHARED,
+				 PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ALIGNED(12),
 				 fd, off);
 	if (mapaddr == (void *) -1) {
 		ErrorF("mmap error: %s",
