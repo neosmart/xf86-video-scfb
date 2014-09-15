@@ -495,8 +495,11 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 	    fb.fb_size);
 
 	//These two are supposed to be the same, it seems they're not always, though?
-	//fPtr->linebytes = fb.fb_size / fb.fb_height;
-	fPtr->linebytes = fPtr->info.vi_pixel_size * fPtr->info.vi_width;
+	//With GPUs that over-allocate the framebuffer (i.e fb_size > vi_height * vi_width * vi_pixel_size),
+	//the extra is allocated at the end of each scanline, not at the end of the entire framebuffer, so we 
+	//use the second option. (Tested: Radeon HD7770)
+	//fPtr->linebytes = fPtr->info.vi_pixel_size * fPtr->info.vi_width;
+	fPtr->linebytes = fb.fb_size / fb.fb_height;
 
 	/* Handle depth */
 	default_depth = fPtr->info.vi_depth <= 24 ? fPtr->info.vi_depth : 24;
