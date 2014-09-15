@@ -422,14 +422,7 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 		adp.va_type, adp.va_name, adp.va_unit, adp.va_mode, adp.va_initial_mode, adp.va_initial_bios_mode );
 #endif
 
-	//Find the desired video mode. Hard-coded to 1280x800x16 for now.
-	//Same as the following vidcontrol command:
-	//vidcontrol -i mode | grep '1280x720x16' | egrep -o '[0-9]{3} '
 	struct video_info vinfo = {0};
-	/*vinfo.vi_width = 1280;
-	vinfo.vi_height = 800;
-	vinfo.vi_depth = 32;*/
-
 	char *resolution = getenv("RESOLUTION");
 
 	if (resolution == NULL) {
@@ -471,6 +464,25 @@ ScfbPreInit(ScrnInfoPtr pScrn, int flags)
 			   strerror(errno));
 		return FALSE;
 	}
+
+	//Set the video mode for the tty
+	vid_info_t console_info = {0};
+	console_info.size = sizeof(console_info);
+	ioctl(0, CONS_GETINFO, &console_info);
+
+	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "Console_info.font_size: %d\n", console_info.font_size);
+
+	struct winsize winsize = {0};
+	winsize.ws_row = vinfo.vi_height / 4;
+	winsize.ws_col = vinfo.vi_width / 8;
+
+	if (ioctl(fPtr->fd, TIOCSWINSZ, &winsize)) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "Error setting screen size in TIOCSWINSZ!\n");
+	}
+
+	//Even though we know what we set it to, obtain the information from the kernel for verification
+	ioctl(fPtr->fd, TIOCGWINSZ, &winsize);
+	xf86DrvMsg(pScrn->scrnIndex, X_INFO, "ttyv8 window size: %d, %d, %d, %d\n", winsize.ws_row, winsize.ws_col, winsize.ws_xpixel, winsize.ws_ypixel);
 
 	fPtr->info.vi_depth = fb.fb_depth;
 	fPtr->info.vi_width = fb.fb_width;
